@@ -28,10 +28,11 @@ public class App {
 
             switch (option) {
                 case 1:
+                    //chamar aqui a classe de login e validação (caso seja gerente abrir outro menu dizendo criar contas ou gerenciar contas (desbloquear) ja existentes)
                     bankMenu(scanner);
                     return;
                 case 2:
-                    // ToDo...
+                    // classe de abertur a de conta
                     System.out.println("Account Opening.");
                     break;
                 case 0:

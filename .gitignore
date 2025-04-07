@@ -26,5 +26,8 @@ replay_pid*
 # Vscode
 .vscode
 
+#dados banco
+src/main/resources/META-INF/persistence.xml
+
 # Target folder
 /target
