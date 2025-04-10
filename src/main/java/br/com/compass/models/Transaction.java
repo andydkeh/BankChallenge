@@ -16,7 +16,7 @@ public class Transaction {
     private Long id;
     
     @Column(name = "account_id")
-    private int accountId;
+    private Long accountId;
     
     @Column(name = "transaction_type")
     private int transactionType;

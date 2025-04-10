@@ -1,19 +1,20 @@
 package br.com.compass;
 
+import br.com.compass.controller.AccountController;
 import java.util.Scanner;
 
 public class App {
-    
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        AccountController accountController = new AccountController();
 
-        mainMenu(scanner);
+        mainMenu(scanner, accountController);
         
         scanner.close();
         System.out.println("Application closed");
     }
 
-    public static void mainMenu(Scanner scanner) {
+    public static void mainMenu(Scanner scanner, AccountController accountController) {
         boolean running = true;
 
         while (running) {
@@ -28,11 +29,9 @@ public class App {
 
             switch (option) {
                 case 1:
-                    //chamar aqui a classe de login e validação (caso seja gerente abrir outro menu dizendo criar contas ou gerenciar contas (desbloquear) ja existentes)
-                    bankMenu(scanner);
+                    bankMenu(scanner, accountController);
                     return;
                 case 2:
-                    // classe de abertur a de conta
                     System.out.println("Account Opening.");
                     break;
                 case 0:
@@ -44,7 +43,7 @@ public class App {
         }
     }
 
-    public static void bankMenu(Scanner scanner) {
+    public static void bankMenu(Scanner scanner, AccountController accountController) {
         boolean running = true;
 
         while (running) {
@@ -62,34 +61,32 @@ public class App {
 
             switch (option) {
                 case 1:
-                    // ToDo...
-                    System.out.println("Deposit.");
+                    Long accountId = Long.valueOf(123123); //remover dps
+                    System.out.print("Enter the deposit amount: ");
+                    double amount = scanner.nextDouble();
+                    accountController.deposit(accountId, amount);
                     break;
                 case 2:
                     // ToDo...
                     System.out.println("Withdraw.");
                     break;
                 case 3:
-                    // ToDo...
-                    System.out.println("Check Balance.");
+                    Long accountIdTest = Long.valueOf(123123); //remover dps
+                    accountController.checkBalance(accountIdTest);
                     break;
                 case 4:
                     // ToDo...
                     System.out.println("Transfer.");
                     break;
                 case 5:
-                    // ToDo...
                     System.out.println("Bank Statement.");
                     break;
                 case 0:
-                    // ToDo...
-                    System.out.println("Exiting...");
                     running = false;
-                    return;
+                    break;
                 default:
                     System.out.println("Invalid option! Please try again.");
             }
         }
     }
-    
 }

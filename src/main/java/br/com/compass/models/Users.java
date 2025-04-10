@@ -15,24 +15,27 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false)
     private String name;
     
-    @Column(name = "birth_date")
+    @Column(name = "birth_date", nullable = false)
     private Date birthDate;
     
-    @Column(unique = true)
+    @Column(unique = true, nullable = false, length = 11)
     private String cpf;
     
+    @Column(length = 15)
     private String phone;
     
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
     
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
     
-    @Column(name = "role_id")
+    @Column(name = "role_id", nullable = false)
     private int roleId;
     
+    @Column(length = 20)
     private String status;
 }
