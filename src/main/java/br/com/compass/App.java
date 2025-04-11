@@ -1,21 +1,29 @@
 package br.com.compass;
 
 import br.com.compass.controller.AccountController;
+import br.com.compass.controller.UserController;
+import br.com.compass.enums.AccountType;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 public class App {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountController accountController = new AccountController();
+        UserController userController = new UserController();
 
-        mainMenu(scanner, accountController);
+        mainMenu(scanner, accountController, userController);
         
         scanner.close();
         System.out.println("Application closed");
     }
 
-    public static void mainMenu(Scanner scanner, AccountController accountController) {
+    public static void mainMenu(Scanner scanner, AccountController accountController, UserController userController) {
         boolean running = true;
+        int loginCounter = 0;
 
         while (running) {
             System.out.println("========= Main Menu =========");
@@ -29,10 +37,64 @@ public class App {
 
             switch (option) {
                 case 1:
-                    bankMenu(scanner, accountController);
-                    return;
+                    System.out.println("Write your email address");
+                    String emailLogin = scanner.next();
+                    System.out.println("Write your password");
+                    String passwordLogin = scanner.next();
+                    if(userController.login(emailLogin, passwordLogin)){
+                        bankMenu(scanner, accountController);
+                        return;
+                    }else{
+                        if (loginCounter <=3){
+                            System.out.println(">>> Invalid email or password<<<");
+                            System.out.println("Returning to the menu");
+                            System.out.println("...");
+
+                            loginCounter++;
+                            continue;
+                        } else{
+                            accountController.blockAccount(emailLogin);
+                            System.out.println("!!!Account blocked due to repeated access attempts. Contact your bank manager to unblock it!!!");
+                            return;
+                        }
+                    }
                 case 2:
-                    System.out.println("Account Opening.");
+                    System.out.println("Write your email address:");
+                    String email = scanner.next();
+
+                    System.out.println("Write your password:");
+                    String password = scanner.next();
+                    scanner.nextLine();
+
+                    System.out.println("Write your complete name");
+                    String name = scanner.nextLine();
+
+                    System.out.println("Choose the number of an account type:");
+                    for (AccountType type : AccountType.values()) {
+                        System.out.println(type.ordinal() + ". " + type.name());
+                    }
+                    Integer accountType = scanner.nextInt();
+                    String accountTypeName = AccountType.values()[accountType].name();
+
+                    System.out.println("Write your birth date (format dd/MM/yyyy)");
+                    String birthDate = scanner.next();
+                    Date birthDateFormat;
+                    try {
+                        SimpleDateFormat bdf = new SimpleDateFormat("dd/MM/yyyy");
+                        birthDateFormat = bdf.parse(birthDate);
+                    } catch (ParseException e) {
+                        System.out.println("Erro: " + e.getMessage());
+                        throw new RuntimeException("Erro");
+                    }
+
+                    System.out.println("Write your cpf without dot and trace:");
+                    String cpf = scanner.next();
+                    System.out.println("Write your phone number:");
+                    String phone = scanner.next();
+
+                    accountController.createAccount(name, birthDateFormat, cpf, phone, accountTypeName, password, email);
+                    bankMenu(scanner, accountController);
+
                     break;
                 case 0:
                     running = false;

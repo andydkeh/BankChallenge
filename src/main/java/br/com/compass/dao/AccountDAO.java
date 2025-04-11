@@ -1,13 +1,12 @@
 package br.com.compass.dao;
 
+import br.com.compass.enums.TransactionsType;
 import br.com.compass.models.Account;
 import br.com.compass.models.Transaction;
 
-import java.math.BigDecimal;
-
-public class AccountDAO extends BaseDAO<AccountDAO>{
+public class AccountDAO extends BaseDAO<Account>{
     public AccountDAO() {
-        super(AccountDAO.class);
+        super(Account.class);
     }
 
     public static void addBalance(Long accountId, double value) {
@@ -24,7 +23,7 @@ public class AccountDAO extends BaseDAO<AccountDAO>{
 
                 Transaction transaction = new Transaction();
                 transaction.setAccountId(accountId);
-                transaction.setTransactionType(2);
+                transaction.setTransactionType(String.valueOf(TransactionsType.DEPOSITS));
                 transaction.setAmount(value);
             }
 

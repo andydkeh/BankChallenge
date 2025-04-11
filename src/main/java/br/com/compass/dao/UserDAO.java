@@ -4,6 +4,7 @@ import br.com.compass.models.Users;
 import jakarta.persistence.*;
 import jakarta.persistence.TypedQuery;
 
+import java.util.Date;
 import java.util.List;
 
 public class UserDAO extends BaseDAO<Users> {
@@ -43,15 +44,6 @@ public class UserDAO extends BaseDAO<Users> {
                 Users.class
         );
         query.setParameter("status", status);
-        return query.getResultList();
-    }
-
-    public List<Users> findByRoleId(int roleId) {
-        TypedQuery<Users> query = em.createQuery(
-                "SELECT u FROM Users u WHERE u.roleId = :roleId",
-                Users.class
-        );
-        query.setParameter("roleId", roleId);
         return query.getResultList();
     }
 }

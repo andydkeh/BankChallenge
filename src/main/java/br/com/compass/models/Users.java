@@ -33,8 +33,8 @@ public class Users {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
     
-    @Column(name = "role_id", nullable = false)
-    private int roleId;
+    @Column(nullable = false)
+    private String role;
     
     @Column(length = 20)
     private String status;

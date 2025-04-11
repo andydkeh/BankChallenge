@@ -19,7 +19,7 @@ public class Transaction {
     private Long accountId;
     
     @Column(name = "transaction_type")
-    private int transactionType;
+    private String transactionType;
     
     private double amount;
     

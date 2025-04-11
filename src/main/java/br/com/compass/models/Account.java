@@ -14,10 +14,10 @@ public class Account {
     private Long id;
     
     @Column(name = "user_id")
-    private int userId;
+    private Long userId;
     
     @Column(name = "account_type_id")
-    private int accountTypeId;
+    private String accountTypeId;
     
     private double balance;
     
