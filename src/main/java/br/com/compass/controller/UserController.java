@@ -2,6 +2,8 @@ package br.com.compass.controller;
 
 import br.com.compass.service.UserService;
 
+import java.util.List;
+
 public class UserController {
     private final UserService userService;
 
@@ -9,7 +11,24 @@ public class UserController {
         this.userService = new UserService();
     }
 
-    public boolean login (String email, String password) {
-        return userService.login(email, password);
+    public List<Long> loginValidation (String email, String password) {
+        try {
+            return userService.login(email, password);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    public String validateScreenByUser(List<Long> IDs){
+        return userService.validateRoleByID(IDs.getFirst());
+
+    }
+
+    public void createAdministrator() {
+        try {
+            userService.createAdministrator();
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 }

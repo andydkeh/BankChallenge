@@ -12,11 +12,11 @@ public class AccountController {
     }
 
     public void createAccount(String name, Date birth_date, String cpf, String phone, String account_type, String password, String email){
-        accountService.createAccount(name, birth_date, cpf, phone, account_type, password, email);
+        //accountService.createAccount(name, birth_date, cpf, phone, account_type, password, email, );
     }
 
     public void blockAccount(String email) {
-        accountService.blockAccount(email);
+       // accountService.blockAccount(email);
     }
 
     public void deposit(Long accountId, double amount) {

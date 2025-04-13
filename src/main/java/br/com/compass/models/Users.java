@@ -21,13 +21,13 @@ public class Users {
     @Column(name = "birth_date", nullable = false)
     private Date birthDate;
     
-    @Column(unique = true, nullable = false, length = 11)
+    @Column(nullable = false, length = 11)
     private String cpf;
     
     @Column(length = 15)
     private String phone;
     
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
     
     @Column(name = "password_hash", nullable = false)
@@ -38,4 +38,7 @@ public class Users {
     
     @Column(length = 20)
     private String status;
+
+    @Transient
+    private Integer passwordAttemptCounter;
 }

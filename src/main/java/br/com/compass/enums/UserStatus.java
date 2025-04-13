@@ -1,6 +1,6 @@
 package br.com.compass.enums;
 
-public enum AccountStatus {
+public enum UserStatus {
     ACTIVE,
-    INACTIVE
+    BLOCKED
 }

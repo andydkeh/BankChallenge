@@ -7,6 +7,8 @@ import br.com.compass.enums.AccountType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class App {
@@ -23,7 +25,8 @@ public class App {
 
     public static void mainMenu(Scanner scanner, AccountController accountController, UserController userController) {
         boolean running = true;
-        int loginCounter = 0;
+
+        userController.createAdministrator();
 
         while (running) {
             System.out.println("========= Main Menu =========");
@@ -41,23 +44,21 @@ public class App {
                     String emailLogin = scanner.next();
                     System.out.println("Write your password");
                     String passwordLogin = scanner.next();
-                    if(userController.login(emailLogin, passwordLogin)){
-                        bankMenu(scanner, accountController);
-                        return;
-                    }else{
-                        if (loginCounter <=3){
-                            System.out.println(">>> Invalid email or password<<<");
-                            System.out.println("Returning to the menu");
-                            System.out.println("...");
+                    List<Long> ids = userController.loginValidation(emailLogin, passwordLogin);
 
-                            loginCounter++;
-                            continue;
-                        } else{
-                            accountController.blockAccount(emailLogin);
-                            System.out.println("!!!Account blocked due to repeated access attempts. Contact your bank manager to unblock it!!!");
-                            return;
+                    if (ids == null) {
+                        break;
+                    } else {
+                        switch (userController.validateScreenByUser(ids)){
+                            case "MANAGER":
+                               // bankMenuManager(scanner);
+                            case "ADMINISTRATOR":
+                               // bankMenuAdminstrator(scanner, );
+                            case "COMMON_USER":
+                                //bankMenuCommonUser(scanner, accountController);
                         }
                     }
+
                 case 2:
                     System.out.println("Write your email address:");
                     String email = scanner.next();
@@ -87,13 +88,18 @@ public class App {
                         throw new RuntimeException("Erro");
                     }
 
-                    System.out.println("Write your cpf without dot and trace:");
+                    System.out.println("Write your CPF:");
                     String cpf = scanner.next();
+                    cpf = cpf.replaceAll("[^\\d]", "");
                     System.out.println("Write your phone number:");
                     String phone = scanner.next();
+                    phone = phone.replaceAll("[^\\d]", "");
 
                     accountController.createAccount(name, birthDateFormat, cpf, phone, accountTypeName, password, email);
-                    bankMenu(scanner, accountController);
+
+                    System.out.println("Account created successfully");
+                    System.out.println("----------------------------");
+                   // bankMenuCommonUser(scanner, accountController);
 
                     break;
                 case 0:
@@ -105,7 +111,7 @@ public class App {
         }
     }
 
-    public static void bankMenu(Scanner scanner, AccountController accountController) {
+    public void bankMenuCommonUser(Scanner scanner, AccountController accountController) {
         boolean running = true;
 
         while (running) {
@@ -150,5 +156,11 @@ public class App {
                     System.out.println("Invalid option! Please try again.");
             }
         }
+    }
+
+    public void bankMenuManager(Scanner scanner) {
+    }
+    public void bankMenuAdministrator() {
+        boolean running = true;
     }
 }

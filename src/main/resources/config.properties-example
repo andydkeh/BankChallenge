@@ -1,0 +1,4 @@
+# Administrator Credentials
+admin.EMAIL=admin@admin.com
+admin.PASSWORD=adminPassword
+admin.NAME=admin

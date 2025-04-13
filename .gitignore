@@ -1,4 +1,8 @@
-# Compiled class file
+# Arquivos de configuração
+src/main/resources/config.properties
+
+# Arquivos compilados
+target/
 *.class
 
 # Log file
@@ -28,6 +32,3 @@ replay_pid*
 
 #dados banco
 src/main/resources/META-INF/persistence.xml
-
-# Target folder
-/target

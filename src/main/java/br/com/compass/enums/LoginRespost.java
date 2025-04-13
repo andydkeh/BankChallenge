@@ -1,0 +1,19 @@
+package br.com.compass.enums;
+
+public enum LoginRespost {
+    SUCCESS("Login successful."),
+    USER_NOT_FOUND("This user does not exist."),
+    WRONG_PASSWORD("Wrong password. Please try again."),
+    USER_BLOCKED("This user is blocked, please contact your bank manager.");
+
+    private final String message;
+
+    LoginRespost(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}
+

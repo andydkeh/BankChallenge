@@ -16,8 +16,8 @@ public class Account {
     @Column(name = "user_id")
     private Long userId;
     
-    @Column(name = "account_type_id")
-    private String accountTypeId;
+    @Column(name = "account_type")
+    private String accountType;
     
     private double balance;
     

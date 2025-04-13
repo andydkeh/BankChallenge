@@ -1,5 +1,6 @@
 package br.com.compass.dao;
 
+import br.com.compass.enums.RoleType;
 import br.com.compass.models.Users;
 import jakarta.persistence.*;
 import jakarta.persistence.TypedQuery;
@@ -12,14 +13,25 @@ public class UserDAO extends BaseDAO<Users> {
         super(Users.class);
     }
 
-    public Users findByEmail(String email) {
+    public static Users findAdministrator() {
+        try {
+            return em.createQuery(
+                            "SELECT u FROM Users u WHERE u.role = :role", Users.class)
+                    .setParameter("role", RoleType.ADMINISTRATOR.name())
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public List<Users> findByEmail(String email) {
         try {
             TypedQuery<Users> query = em.createQuery(
                     "SELECT u FROM Users u WHERE u.email = :email",
                     Users.class
             );
             query.setParameter("email", email);
-            return query.getSingleResult();
+            return query.getResultList();
         } catch (NoResultException e) {
             return null;
         }
