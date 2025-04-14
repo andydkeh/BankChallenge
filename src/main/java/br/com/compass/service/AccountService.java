@@ -10,9 +10,13 @@ import br.com.compass.models.Transaction;
 import br.com.compass.dao.UserDAO;
 import br.com.compass.models.Transfers;
 import br.com.compass.dao.TransfersDAO;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static br.com.compass.dao.BaseDAO.em;
 
 
 public class AccountService {
@@ -136,7 +140,7 @@ public class AccountService {
         transfersDAO.save(transfers);
 
         //owner
-        saveTransaction(fromAccount, amount, TransactionsType.TRANSFERS.name(), transfers.getId());
+        saveTransaction(fromAccount, -amount, TransactionsType.TRANSFERS.name(), transfers.getId());
 
         //to
         saveTransaction(toAccount, amount, TransactionsType.TRANSFERS.name(), transfers.getId());
@@ -161,5 +165,28 @@ public class AccountService {
             System.out.println("| Target Account ID: " + transfersId);
         }
         System.out.println("======================");
+    }
+
+    public String generateCSVTransactions(Long idUser) {
+
+        List<Transaction> transactions = transactionDAO.findByAllTransactionID(idUser);
+
+        if (transactions.isEmpty()) {
+            throw new RuntimeException("No transactions found for user: "+idUser);
+        }
+        StringBuilder csv = new StringBuilder();
+        csv.append("id;account_id;transaction_type;amount;date;transfers_id");
+
+        for (Transaction transaction : transactions) {
+            csv.append(transaction.getId()).append(";")
+                    .append(transaction.getAccountId()).append(";")
+                    .append(transaction.getTransactionType()).append(";")
+                    .append(transaction.getAmount()).append(";")
+                    .append(transaction.getTransactionDate()).append(";")
+                    .append(transaction.getTransfersId())
+                    .append("\n");
+        }
+
+        return csv.toString();
     }
 }

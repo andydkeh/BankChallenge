@@ -216,6 +216,7 @@ public class App {
                     break;
                 case 5:
                     System.out.println("Bank Statement.");
+                    accountController.downloadCSVTransactions(idUser);
                     break;
                 case 6:
                     System.out.println("Deposit.");

@@ -3,6 +3,13 @@ package br.com.compass.controller;
 import br.com.compass.models.Account;
 import br.com.compass.service.AccountService;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -80,6 +87,26 @@ public class AccountController {
         try{
             accountService.transfer(fromAccount, toAccountId, amount);
         }catch(RuntimeException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void downloadCSVTransactions(Long idAccount) {
+
+        try {
+            String csvContent = accountService.generateCSVTransactions(idAccount);
+
+            String fileName = "transactions_" + idAccount + "_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss")) + ".csv";
+
+            try {
+                Path filePath = Paths.get(fileName);
+                Files.writeString(filePath, csvContent);
+                System.out.println("File saved as: " + fileName);
+            } catch (IOException e) {
+                System.out.println("Error saving file: " + e.getMessage());
+                throw new RuntimeException("Error saving CSV file", e);
+            }
+        }catch (RuntimeException e){
             System.out.println(e.getMessage());
         }
     }

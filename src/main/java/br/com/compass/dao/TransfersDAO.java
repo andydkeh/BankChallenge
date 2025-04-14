@@ -5,6 +5,8 @@ import br.com.compass.models.Transfers;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
+import java.util.List;
+
 public class TransfersDAO extends BaseDAO<Transfers> {
     public TransfersDAO() {
         super(Transfers.class);
