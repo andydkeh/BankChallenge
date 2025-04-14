@@ -16,10 +16,10 @@ public class Transfers {
     private Long id;
     
     @Column(name = "source_account_id")
-    private int sourceAccountId;
+    private Long sourceAccountId;
     
     @Column(name = "destination_account_id")
-    private int destinationAccountId;
+    private Long destinationAccountId;
     
     private double amount;
     

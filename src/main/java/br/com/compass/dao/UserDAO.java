@@ -1,11 +1,11 @@
 package br.com.compass.dao;
 
 import br.com.compass.enums.RoleType;
+import br.com.compass.enums.UserStatus;
 import br.com.compass.models.Users;
 import jakarta.persistence.*;
 import jakarta.persistence.TypedQuery;
 
-import java.util.Date;
 import java.util.List;
 
 public class UserDAO extends BaseDAO<Users> {
@@ -24,14 +24,14 @@ public class UserDAO extends BaseDAO<Users> {
         }
     }
 
-    public List<Users> findByEmail(String email) {
+    public Users findByEmail(String email) {
         try {
             TypedQuery<Users> query = em.createQuery(
                     "SELECT u FROM Users u WHERE u.email = :email",
                     Users.class
             );
             query.setParameter("email", email);
-            return query.getResultList();
+            return query.getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
@@ -56,6 +56,15 @@ public class UserDAO extends BaseDAO<Users> {
                 Users.class
         );
         query.setParameter("status", status);
+        return query.getResultList();
+    }
+
+    public List<Users> findAllUsersBlock() {
+        TypedQuery<Users> query = em.createQuery(
+                "SELECT u FROM Users u WHERE u.status = :userBlockValue",
+                Users.class
+        );
+        query.setParameter("userBlockValue", UserStatus.BLOCKED.name());
         return query.getResultList();
     }
 }

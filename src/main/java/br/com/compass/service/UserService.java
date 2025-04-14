@@ -10,9 +10,7 @@ import br.com.compass.models.Users;
 import org.mindrot.jbcrypt.BCrypt;
 import br.com.compass.config.ConfigReader;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 public class UserService {
@@ -24,46 +22,47 @@ public class UserService {
         this.accountDAO = new AccountDAO();
     }
 
-    public Users createUser(String name, Date birthDate, String cpf, String phone, String accountType, String password, String email, String role) {
-        String hash = BCrypt.hashpw(password, BCrypt.gensalt());
-        Users user = new Users();
-        user.setName(name);
-        user.setCpf(cpf);
-        user.setPhone(phone);
-        user.setBirthDate(new java.sql.Date(birthDate.getTime()));
-        user.setPasswordHash(hash);
-        user.setEmail(email);
-        user.setRole(role);
-        userDAO.save(user);
-
-        return user;
-    }
-
     public void createAdministrator(){
         if (UserDAO.findAdministrator() == null){
-            createUser(ConfigReader.getAdminName(), null, null, null, null, ConfigReader.getAdminPassword(), ConfigReader.getAdminEmail(), RoleType.ADMINISTRATOR.name());
-        } else {
-            throw new RuntimeException("Administrator already exists!!");
+            createUser(ConfigReader.getAdminEmail(), new Date(), "00000000000", null, ConfigReader.getAdminPassword(), ConfigReader.getAdminEmail(), RoleType.ADMINISTRATOR.name());
         }
     }
 
-    public List<Long> login (String email, String password) {
-        List<Users> user = userDAO.findByEmail(email);
+    public Users createUser(String name, Date birthDate, String cpf, String phone, String password, String email, String role) {
+        if (userDAO.findByEmail(email) == null) {
+            String hash = BCrypt.hashpw(password, BCrypt.gensalt());
+            Users user = new Users();
+            user.setName(name);
+            user.setCpf(cpf);
+            user.setPhone(phone);
+            user.setBirthDate(new java.sql.Date(birthDate.getTime()));
+            user.setPasswordHash(hash);
+            user.setEmail(email);
+            user.setRole(role);
+            userDAO.save(user);
+
+            return user;
+        } else{
+            return null;
+        }
+    }
+
+    public Long login (String email, String password) {
+        Users user = userDAO.findByEmail(email);
 
         if (user == null){
              System.out.println(LoginRespost.USER_NOT_FOUND.getMessage());
              throw new RuntimeException("User not found!");
         }
 
-        var userFinal = user.getFirst();
-
-        if (Objects.equals(userFinal.getStatus(), UserStatus.BLOCKED.name())) {
+        if (Objects.equals(user.getStatus(), UserStatus.BLOCKED.name())) {
             System.out.println(LoginRespost.USER_BLOCKED.getMessage());
             throw new RuntimeException("User is blocked!");
-        } else if (!BCrypt.checkpw(password, userFinal.getPasswordHash())) {
-            userFinal.setPasswordAttemptCounter(userFinal.getPasswordAttemptCounter() + 1);
-            if (userFinal.getPasswordAttemptCounter() > 3 && !Objects.equals(userFinal.getRole(), RoleType.ADMINISTRATOR.name()) && !Objects.equals(userFinal.getRole(), RoleType.MANAGER.name())) {
-                userFinal.setStatus(UserStatus.BLOCKED.name());
+        } else if (!BCrypt.checkpw(password, user.getPasswordHash())) {
+            user.setPasswordAttemptCounter(user.getPasswordAttemptCounter() + 1);
+            if (user.getPasswordAttemptCounter() >= 3 && !Objects.equals(user.getRole(), RoleType.ADMINISTRATOR.name()) && !Objects.equals(user.getRole(), RoleType.MANAGER.name())) {
+                user.setStatus(UserStatus.BLOCKED.name());
+                userDAO.update(user);
                 System.out.println(LoginRespost.USER_BLOCKED.getMessage());
                 throw new RuntimeException("User blocked!");
             }else{
@@ -77,33 +76,47 @@ public class UserService {
         return findAccountsByEmail(email);
     }
 
-    public List<Long> findAccountsByEmail(String email) {
-
-        List<Users> userAccounts = userDAO.findByEmail(email);
-        List<Long> idAccounts = new ArrayList<>();
-        for (Users userAccount : userAccounts) {
-            idAccounts.add(userAccount.getId());
-        }
-        return idAccounts;
+    public Long findAccountsByEmail(String email) {
+        Users userAccounts = userDAO.findByEmail(email);
+        return userAccounts.getId();
     }
 
-    public String validateUserRole(String email){
-        List<Users> user = userDAO.findByEmail(email);
-
-        return user.getFirst().getRole();
-    }
-
-    public String validateRoleByID(Long id){
-        Account account = accountDAO.findByUserID(id);
-        Users user = userDAO.findById(account.getUserId());
+    public String validateRoleByID(String email){
+        Users user = userDAO.findByEmail(email);
         return user.getRole();
     }
 
-//    public boolean validateAccountType(String email, String accountType) {
-//        Long idAccount = userDAO.findByEmail(email).getId();
-//        String accountTypeValue = accountDAO.findByUserID(idAccount).getAccountType();
-//        if (accountType.equals(accountTypeValue)){
-//            return true;
-//        }
-//        return false;
+    public boolean validateAccountType(String email, String accountType) {
+        Long idAccount = userDAO.findByEmail(email).getId();
+        Account accountTypeValue = accountDAO.findByUserID(idAccount);
+
+        if (accountTypeValue != null){
+            return accountTypeValue.getAccountType().equals(accountType);
+        }else{
+            return false;
+        }
+    }
+
+    public boolean showUsersBlock(){
+
+        var usersBlock = userDAO.findAllUsersBlock();
+
+        if (usersBlock.isEmpty()){
+            throw new RuntimeException("No users blocked at this time.");
+        }
+
+        for (Users user : usersBlock){
+            System.out.println("======= User list =========");
+            System.out.println("|ID: " + user.getId() + " |EMAIL:"+user.getEmail());
+        }
+        return true;
+    }
+
+    public void unlockUser(Long userId){
+        Users user = userDAO.findById(userId);
+        user.setStatus(UserStatus.ACTIVE.name());
+        userDAO.save(user);
+
+        System.out.println("User unlocked!");
+    }
 }

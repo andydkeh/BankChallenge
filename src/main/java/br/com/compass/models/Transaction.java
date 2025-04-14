@@ -3,6 +3,7 @@ package br.com.compass.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
 
@@ -22,7 +23,8 @@ public class Transaction {
     private String transactionType;
     
     private double amount;
-    
+
+    @CreationTimestamp
     @Column(name = "transaction_date")
     private Timestamp transactionDate;
     

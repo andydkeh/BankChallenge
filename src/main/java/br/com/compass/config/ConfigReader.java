@@ -28,4 +28,8 @@ public class ConfigReader {
     public static String getAdminName() {
         return properties.getProperty("admin.NAME");
     }
+
+    public static String getAdminCpf() {
+        return properties.getProperty("admin.CPF");
+    }
 } 

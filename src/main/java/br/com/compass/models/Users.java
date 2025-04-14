@@ -40,5 +40,5 @@ public class Users {
     private String status;
 
     @Transient
-    private Integer passwordAttemptCounter;
+    private Integer passwordAttemptCounter = 0;
 }
