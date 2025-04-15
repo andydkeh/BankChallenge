@@ -103,7 +103,7 @@ public class App {
                                     break;
                                 }
 
-                                System.out.print("=== Choose what type of account you want to create ===");
+                                System.out.print("=== Choose what type of account you want to create === \n");
                                 IntStream.range(0, valuesScreenAccount.size())
                                         .forEach(i -> System.out.println(i + ". " + valuesScreenAccount.get(i)));
 
@@ -303,6 +303,7 @@ public class App {
                 case 5:
                     if (!Objects.equals(userController.validateScreenByUser(email), RoleType.ADMINISTRATOR.name())) {
                         System.out.println("Invalid option! Please try again.");
+                        break;
                     }
 
                     System.out.println("Enter the manager's email address:");

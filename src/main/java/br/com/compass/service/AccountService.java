@@ -51,22 +51,22 @@ public class AccountService {
 
     public List<String> validateTypeAccountCreate(Long idUser) {
         List<Account> userAccounts = showAccounts(idUser);
+        List<String> typesFinal = new ArrayList<>();
 
         Set<String> accountTypesUser = userAccounts.stream()
                 .map(Account::getAccountType)
                 .collect(Collectors.toSet());
 
-        List<String> availableAccountTypes = Arrays.stream(AccountType.values())
-                .filter(type -> !accountTypesUser.contains(type))
-                .map(Enum::name)
-                .collect(Collectors.toList());
+        for (AccountType type : AccountType.values()) {
+            if (!accountTypesUser.contains(type.name())){
+                typesFinal.add(type.name());
+            }
+        }
 
-
-        if (availableAccountTypes.isEmpty()) {
-            System.out.println("No account types available for user: "+idUser);
+        if (typesFinal.isEmpty()) {
             throw new RuntimeException("No account types available for user.");
         } else {
-            return availableAccountTypes;
+            return typesFinal;
         }
     }
 

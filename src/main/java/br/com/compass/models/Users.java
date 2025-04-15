@@ -51,7 +51,7 @@ public class Users {
     public Users(String name, java.util.Date birthDate, String cpf, String phone, String password, String email, String role) {
         this.name = name;
         this.birthDate = new Date(birthDate.getTime());
-        this.cpf = cpf;
+        this.cpf = cpf.replaceAll("[^0-9]", "");
         this.phone = phone;
         this.email = email;
         this.role = role;

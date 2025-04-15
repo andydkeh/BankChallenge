@@ -35,8 +35,7 @@ public class TransactionService {
     public void showRefunds(){
         List<RefundRequest> refunds = refundDAO.findByAllRefundPending();
 
-        if (refunds == null){
-            System.out.print("No refund pending.");
+        if (refunds.isEmpty()){
             throw new RuntimeException("No refund pending.");
         }
 
@@ -50,6 +49,11 @@ public class TransactionService {
 
     public void makeRefund(Long refundId){
         RefundRequest refundResult = refundDAO.findById(refundId);
+
+        if (refundResult == null){
+            throw new RuntimeException("Refund not found.");
+        }
+
         Transaction transaction = transactionDAO.findById(refundResult.getTransactionId());
 
         if (transaction == null){

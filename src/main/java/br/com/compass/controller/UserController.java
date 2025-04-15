@@ -23,8 +23,8 @@ public class UserController {
         try{
             userService.createUser(userDTO);
             System.out.println("Manager created.");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
         }
     }
 

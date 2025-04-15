@@ -13,6 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import br.com.compass.config.ConfigReader;
 import java.sql.Date;
 
+import java.util.List;
 import java.util.Objects;
 
 public class UserService {
@@ -28,9 +29,9 @@ public class UserService {
     public void createAdministrator(){
         if (UserDAO.findAdministrator() == null){
             UserDTO userDTO = new UserDTO(ConfigReader.getAdminName(),
-                    new Date(0,0,0),
+                    new Date(01,01,1990),
                     ConfigReader.getAdminCpf(),
-                    null,
+                    "(99)999999999",
                     ConfigReader.getAdminEmail(),
                     ConfigReader.getAdminPassword(),
                     RoleType.ADMINISTRATOR.name());
@@ -97,13 +98,18 @@ public class UserService {
 
     public boolean validateAccountType(String email, String accountType) {
         Long idAccount = userDAO.findByEmail(email).getId();
-        Account accountTypeValue = accountDAO.findByUserID(idAccount);
+        List<Account> accountTypeValue = accountDAO.findByUserIDAllAccounts(idAccount);
+        var control = false;
 
         if (accountTypeValue != null){
-            return accountTypeValue.getAccountType().equals(accountType);
-        }else{
-            return false;
+            for (Account accountTypeUserAccount : accountTypeValue){
+               if (accountTypeUserAccount.getAccountType().equals(accountType)){
+                   control = true;
+                   break;
+               };
+            }
         }
+        return control;
     }
 
     public void showUsersBlock(){
@@ -121,10 +127,15 @@ public class UserService {
 
     public void unlockUser(Long userId){
         Users user = userDAO.findById(userId);
-        user.setStatus(UserStatus.ACTIVE.name());
-        userDAO.save(user);
 
-        System.out.println("User unlocked!");
+        if (user != null){
+            user.setStatus(UserStatus.ACTIVE.name());
+            userDAO.save(user);
+
+            System.out.println("User unlocked!");
+        }else{
+            throw new RuntimeException("User not found!");
+        }
     }
 
     public Users takeUserInformationByEmail(String email){
