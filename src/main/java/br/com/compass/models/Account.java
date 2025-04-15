@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Getter
 @Setter
 @Entity
@@ -20,6 +22,10 @@ public class Account {
     private String accountType;
     
     private double balance;
-    
+
+    @Column(insertable = false)
     private String status;
+
+    @Column(name = "created_at", insertable = false, updatable = false)
+    private Date created_at;
 } 

@@ -23,8 +23,6 @@ public class Transfers {
     
     private double amount;
     
-    @Column(name = "transfer_date")
+    @Column(name = "transfer_date", insertable = false, updatable = false)
     private Timestamp transferDate;
-    
-    private String status;
 }

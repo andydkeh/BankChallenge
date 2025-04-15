@@ -16,10 +16,11 @@ public class RefundRequest {
     private Long id;
     
     @Column(name = "transaction_id")
-    private int transactionId;
+    private Long transactionId;
     
-    @Column(name = "request_date")
+    @Column(name = "request_date", insertable = false)
     private Timestamp requestDate;
-    
+
+    @Column(insertable = false)
     private String status;
 } 

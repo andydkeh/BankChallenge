@@ -25,13 +25,9 @@ public class Transaction {
     private double amount;
 
     @CreationTimestamp
-    @Column(name = "transaction_date")
+    @Column(name = "transaction_date", insertable = false, updatable = false)
     private Timestamp transactionDate;
     
-    private String status;
-    
-    private String description;
-    
     @Column(name = "transfers_id")
-    private Integer transfersId;
+    private Long transfersId;
 } 

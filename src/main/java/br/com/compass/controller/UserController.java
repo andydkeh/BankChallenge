@@ -1,5 +1,6 @@
 package br.com.compass.controller;
 
+import br.com.compass.dto.UserDTO;
 import br.com.compass.models.Users;
 import br.com.compass.service.UserService;
 
@@ -21,9 +22,9 @@ public class UserController {
         }
     }
 
-    public void createUserManager(String name, Date birthDate, String cpf, String phone, String password, String email, String role) {
+    public void createUserManager(UserDTO userDTO) {
         try{
-            userService.createUser(name, birthDate, cpf, phone, password, email, role);
+            userService.createUser(userDTO);
             System.out.println("Manager created.");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -57,5 +58,14 @@ public class UserController {
 
     public String validateScreenByUser(String email){
         return userService.validateRoleByID(email);
+    }
+
+    public Users takeUserInformation(String email){
+        try {
+            return userService.takeUserInformationByEmail(email);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 }

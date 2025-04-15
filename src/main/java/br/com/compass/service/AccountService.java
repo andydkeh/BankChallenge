@@ -1,52 +1,51 @@
 package br.com.compass.service;
 
 import br.com.compass.dao.AccountDAO;
+import br.com.compass.dto.UserDTO;
 import br.com.compass.enums.AccountStatus;
 import br.com.compass.enums.AccountType;
+import br.com.compass.enums.RefundStatus;
 import br.com.compass.enums.TransactionsType;
-import br.com.compass.models.Account;
+import br.com.compass.models.*;
 import br.com.compass.dao.TransactionDAO;
-import br.com.compass.models.Transaction;
-import br.com.compass.dao.UserDAO;
-import br.com.compass.models.Transfers;
 import br.com.compass.dao.TransfersDAO;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
+import br.com.compass.dao.RefundDAO;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static br.com.compass.dao.BaseDAO.em;
-
-
 public class AccountService {
     private final AccountDAO accountDAO;
-    private final UserDAO userDAO;
     private final UserService userService;
     private final TransactionDAO transactionDAO;
     private final TransfersDAO transfersDAO;
+    private final RefundDAO refundDAO;
 
     public AccountService() {
         this.accountDAO = new AccountDAO();
-        this.userDAO = new UserDAO();
         this.userService = new UserService();
         this.transactionDAO = new TransactionDAO();
         this.transfersDAO = new TransfersDAO();
+        this.refundDAO = new RefundDAO();
     }
 
-    public void createAccount(String name, Date birthDate, String cpf, String phone, String accountType, String password, String email, String role) {
-        var user = userService.createUser(name, birthDate, cpf, phone, password, email, role);
-
-        if (user == null) {
-            throw new RuntimeException("User already exists, use another email or login for creating bank account.");
+    public void createAccount(UserDTO userDTO, String accountType, boolean userAlreadyExists) {
+        Users user = null;
+        if (userAlreadyExists){
+            user = userService.takeUserInformationByEmail(userDTO.email());
+        }else{
+            user = userService.createUser(userDTO);
+            if (user == null) {
+                throw new RuntimeException("User already exists, use another email or login for creating bank account.");
+            }
         }
-        if (userService.validateAccountType(email, accountType)){
+
+        if (userService.validateAccountType(userDTO.email(), accountType)){
             throw new RuntimeException("Email already registered for type: "+accountType+" account.");
         }
 
-        Long idUserAccount = user.getId();
         Account account = new Account();
-        account.setUserId(idUserAccount);
+        account.setUserId(user.getId());
         account.setAccountType(accountType);
         account.setStatus(AccountStatus.ACTIVE.name());
         accountDAO.save(account);
@@ -76,10 +75,7 @@ public class AccountService {
     }
 
     public List<Account> showAccounts(Long idUser){
-        List<Account> accounts = new ArrayList<>();
-        accounts.add(accountDAO.findById(idUser));
-
-        return accounts;
+        return accountDAO.findByUserIDAllAccounts(idUser);
     }
 
     public Account showAccountById(Long idAccount) {
@@ -106,6 +102,9 @@ public class AccountService {
     public void withdraw(Account account, double amount) {
         if (account.getBalance() < amount) {
             throw new RuntimeException("Insufficient balance");
+        }
+        if (amount <= 0) {
+            throw new RuntimeException("Amount must be greater than 0");
         }
         account.setBalance(account.getBalance() - amount);
         accountDAO.save(account);
@@ -140,7 +139,7 @@ public class AccountService {
         transfersDAO.save(transfers);
 
         //owner
-        saveTransaction(fromAccount, -amount, TransactionsType.TRANSFERS.name(), transfers.getId());
+        saveTransaction(fromAccount, amount, TransactionsType.TRANSFERS.name(), transfers.getId());
 
         //to
         saveTransaction(toAccount, amount, TransactionsType.TRANSFERS.name(), transfers.getId());
@@ -148,11 +147,12 @@ public class AccountService {
         bankStatement(fromAccount, amount, TransactionsType.TRANSFERS.name(), toAccount.getId());
     }
 
-    public void saveTransaction(Account account, double amount, String transactionType, Long transfersId) {
+    public void saveTransaction(Account account, double amount, String transactionType, Long transfersIdSave) {
         Transaction transaction = new Transaction();
         transaction.setAccountId(account.getId());
         transaction.setAmount(amount);
         transaction.setTransactionType(transactionType);
+        transaction.setTransfersId(transfersIdSave);
         transactionDAO.save(transaction);
     }
 
@@ -167,6 +167,20 @@ public class AccountService {
         System.out.println("======================");
     }
 
+    public void showTransactionsChargeback(Long idUser){
+        List<Transaction> transactions = transactionDAO.findByAllTransactionIdChargeback(idUser);
+
+        if(transactions == null){
+            System.out.println("No transactions chargeback for user: "+idUser);
+        }
+
+        for (Transaction transaction : transactions) {
+            System.out.println("| ID: " + transaction.getId()
+                    + " | TRANSACTION TYPE: " + transaction.getTransactionType()
+                    + " | AMOUNT: " + transaction.getAmount());
+        }
+    }
+
     public String generateCSVTransactions(Long idUser) {
 
         List<Transaction> transactions = transactionDAO.findByAllTransactionID(idUser);
@@ -175,9 +189,11 @@ public class AccountService {
             throw new RuntimeException("No transactions found for user: "+idUser);
         }
         StringBuilder csv = new StringBuilder();
-        csv.append("id;account_id;transaction_type;amount;date;transfers_id");
+
+        csv.append("id;account_id;transaction_type;amount;date;transfers_id").append("\n");
 
         for (Transaction transaction : transactions) {
+
             csv.append(transaction.getId()).append(";")
                     .append(transaction.getAccountId()).append(";")
                     .append(transaction.getTransactionType()).append(";")

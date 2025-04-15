@@ -15,7 +15,7 @@ public class TransfersDAO extends BaseDAO<Transfers> {
     public Transfers findByTransfersID(Long transfersId) {
         try {
             TypedQuery<Transfers> query = em.createQuery(
-                    "SELECT u FROM Transaction u WHERE u.transfersId = :transfersId",
+                    "SELECT u FROM Transfers u WHERE u.id = :transfersId",
                     Transfers.class
             );
             query.setParameter("transfersId", transfersId);

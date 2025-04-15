@@ -32,3 +32,6 @@ replay_pid*
 
 #dados banco
 src/main/resources/META-INF/persistence.xml
+
+#docsCSVExtrato
+CSVTransaction

@@ -1,6 +1,6 @@
 package br.com.compass.enums;
 
-public enum LoginRespost {
+public enum LoginResponse {
     SUCCESS("Login successful."),
     USER_NOT_FOUND("This user does not exist."),
     WRONG_PASSWORD("Wrong password. Please try again."),
@@ -8,7 +8,7 @@ public enum LoginRespost {
 
     private final String message;
 
-    LoginRespost(String message) {
+    LoginResponse(String message) {
         this.message = message;
     }
 

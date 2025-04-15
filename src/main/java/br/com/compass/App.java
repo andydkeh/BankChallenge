@@ -1,31 +1,36 @@
 package br.com.compass;
 
 import br.com.compass.controller.AccountController;
+import br.com.compass.controller.TransactionController;
 import br.com.compass.controller.UserController;
+import br.com.compass.dto.UserDTO;
 import br.com.compass.enums.AccountType;
 import br.com.compass.enums.RoleType;
 import br.com.compass.models.Account;
+import br.com.compass.models.Transaction;
+import br.com.compass.models.Users;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class App {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AccountController accountController = new AccountController();
         UserController userController = new UserController();
+        TransactionController transactionController = new TransactionController();
 
-        mainMenu(scanner, accountController, userController);
-        
+        mainMenu(scanner, accountController, userController, transactionController);
+
         scanner.close();
         System.out.println("Application closed");
     }
 
-    public static void mainMenu(Scanner scanner, AccountController accountController, UserController userController) {
+    public static void mainMenu(Scanner scanner, AccountController accountController, UserController userController, TransactionController transactionController) {
         boolean running = true;
 
         userController.createAdministrator();
@@ -52,21 +57,20 @@ public class App {
                         break;
                     } else {
 
-                        if (Objects.equals(userController.validateScreenByUser(emailLogin), "COMMON_USER")){
+                        if (Objects.equals(userController.validateScreenByUser(emailLogin), "COMMON_USER")) {
                             List<Account> accounts = accountController.showAccountsUser(idUser);
 
-                            System.out.println("|| Choose the account ID you want to log in to: ||");
+                            System.out.println("=== Choose the account ID you want to log in to ===");
                             for (Account account : accounts) {
-                                System.out.println("|| "+account.getId()+". "+account.getAccountType()+" ||");
+                                System.out.println("| ID: " + account.getId() + " |" + account.getAccountType());
                             }
                             Long idAccount = scanner.nextLong();
 
-                            bankMenuCommonUser(scanner, idAccount, accountController);
+                            bankMenuCommonUser(scanner, idAccount, accountController, transactionController);
                             break;
-                        } else{
+                        } else {
                             //manager e adm
-                            bankMenuManager(scanner, idUser, userController, emailLogin);
-                            running = false;
+                            bankMenuManager(scanner, idUser, userController, emailLogin, transactionController);
                             break;
                         }
                     }
@@ -94,18 +98,26 @@ public class App {
                                 break;
                             }
 
-                            if (Objects.equals(userController.validateScreenByUser(emailLoginAccountOpening), RoleType.COMMON_USER.name())){
+                            if (Objects.equals(userController.validateScreenByUser(emailLoginAccountOpening), RoleType.COMMON_USER.name())) {
                                 var valuesScreenAccount = accountController.validateTypeAccountCreate(idUserAccountOpening);
 
                                 if (valuesScreenAccount == null) {
                                     break;
                                 }
 
-                                for (String value : valuesScreenAccount){
-                                    System.out.println(value);
-                                }
+                                System.out.print("=== Choose what type of account you want to create ===");
+                                IntStream.range(0, valuesScreenAccount.size())
+                                        .forEach(i -> System.out.println(i + ". " + valuesScreenAccount.get(i)));
 
-                            }else{
+                                int optionAccountType = scanner.nextInt();
+
+                                Users user = userController.takeUserInformation(emailLoginAccountOpening);
+                                UserDTO userDTO = new UserDTO(user.getName(), user.getBirthDate(), user.getCpf(), user.getPhone(), emailLoginAccountOpening, user.getPasswordHash(), RoleType.COMMON_USER.name());
+
+                                accountController.createAccount(userDTO, valuesScreenAccount.get(optionAccountType), true);
+
+                                break;
+                            } else {
                                 System.out.print("This email is not authorized to create bank accounts.");
                             }
 
@@ -129,10 +141,13 @@ public class App {
 
                             System.out.println("Write your birth date (dd/MM/yyyy)");
                             String birthDate = scanner.next();
-                            Date birthDateFormat;
+
+                            java.sql.Date birthDateFormat;
+
                             try {
                                 SimpleDateFormat bdf = new SimpleDateFormat("dd/MM/yyyy");
-                                birthDateFormat = bdf.parse(birthDate);
+                                birthDateFormat = new java.sql.Date(bdf.parse(birthDate).getTime());
+
                             } catch (ParseException e) {
                                 System.out.println("Erro: " + e.getMessage());
                                 throw new RuntimeException("Erro");
@@ -146,13 +161,13 @@ public class App {
                             String phone = scanner.next();
                             phone = phone.replaceAll("[^\\d]", "");
 
-                            accountController.createAccount(name, birthDateFormat, cpf, phone, accountTypeName, password, email, RoleType.COMMON_USER.name());
+                            UserDTO userDTO = new UserDTO(name, birthDateFormat, cpf, phone, email, password, RoleType.COMMON_USER.name());
 
-                            // bankMenuCommonUser(scanner, accountController);
+                            accountController.createAccount(userDTO, accountTypeName, false);
+                            break;
                         case 0:
                             break;
-                        default:
-                            System.out.println("Invalid option! Please try again.");
+
                     }
 
                     break;
@@ -165,7 +180,7 @@ public class App {
         }
     }
 
-    public static void bankMenuCommonUser(Scanner scanner, Long idUser, AccountController accountController) {
+    public static void bankMenuCommonUser(Scanner scanner, Long idUser, AccountController accountController, TransactionController transactionController) {
         boolean running = true;
 
         Account account = accountController.showAccountById(idUser);
@@ -212,11 +227,29 @@ public class App {
                     break;
                 case 4:
                     System.out.println("Chargeback.");
-                    // ToDo...
+                    accountController.showTransactionsChargeback(idUser);
+
+                    System.out.println("Choose the transaction ID for which you wish to request a refund:");
+                    System.out.println("[Or enter 0 to exit]");
+                    long optionTransactionChargeback = scanner.nextLong();
+
+                    if (optionTransactionChargeback == 0) {
+                        break;
+                    }else{
+                        transactionController.requestRefund(optionTransactionChargeback);
+                    }
+
                     break;
                 case 5:
                     System.out.println("Bank Statement.");
-                    accountController.downloadCSVTransactions(idUser);
+                    accountController.showCSVTransactions(idUser);
+                    System.out.println("Do you want to download the statement in CSV format?");
+                    System.out.println("|| 1. Yes | 2. No ||");
+                    int optionDownload = scanner.nextInt();
+
+                    if(optionDownload == 1) {
+                        accountController.downloadCSVTransactions(idUser);
+                    }
                     break;
                 case 6:
                     System.out.println("Deposit.");
@@ -233,16 +266,18 @@ public class App {
         }
     }
 
-    public static void bankMenuManager(Scanner scanner, Long idManager, UserController userController, String email) {
+    public static void bankMenuManager(Scanner scanner, Long idManager, UserController userController, String email, TransactionController transactionController) {
         boolean running = true;
 
-        while (running){
+        while (running) {
             System.out.println("========== Bank Menu ==========");
-            System.out.println("|| 1. List blocked accounts  ||");
-            System.out.println("|| 2. Unlock accounts        ||");
+            System.out.println("|| 1. List pending refunds   ||");
+            System.out.println("|| 2. Approve/reject refund  ||");
+            System.out.println("|| 3. List blocked accounts  ||");
+            System.out.println("|| 4. Unlock accounts        ||");
 
-            if (Objects.equals(userController.validateScreenByUser(email), RoleType.ADMINISTRATOR.name())){
-                System.out.println("|| 3. Create manager account ||");
+            if (Objects.equals(userController.validateScreenByUser(email), RoleType.ADMINISTRATOR.name())) {
+                System.out.println("|| 5. Create manager account ||");
             }
 
             System.out.println("|| 0. Exit                   ||");
@@ -253,15 +288,24 @@ public class App {
 
             switch (option) {
                 case 1:
-                    userController.showUsersBlock();
+                    transactionController.showRefunds();
                     break;
                 case 2:
+                    System.out.println("Enter the chargeback ID:");
+                    Long idChargeback = scanner.nextLong();
+
+                    transactionController.makeRefund(idChargeback);
+                    break;
+                case 3:
+                    userController.showUsersBlock();
+                    break;
+                case 4:
                     System.out.println("Enter the ID of the user you want to unlock:");
                     Long id = Long.valueOf(scanner.next());
                     userController.unlockUser(id);
                     break;
-                case 3:
-                    if (!Objects.equals(userController.validateScreenByUser(email), RoleType.ADMINISTRATOR.name())){
+                case 5:
+                    if (!Objects.equals(userController.validateScreenByUser(email), RoleType.ADMINISTRATOR.name())) {
                         System.out.println("Invalid option! Please try again.");
                     }
 
@@ -277,10 +321,13 @@ public class App {
 
                     System.out.println("Write the manager's date of birth (dd/MM/yyyy)");
                     String birthDate = scanner.next();
-                    Date birthDateFormat;
+
+                    java.sql.Date birthDateFormat;
+
                     try {
                         SimpleDateFormat bdf = new SimpleDateFormat("dd/MM/yyyy");
-                        birthDateFormat = bdf.parse(birthDate);
+                        birthDateFormat = new java.sql.Date(bdf.parse(birthDate).getTime());
+
                     } catch (ParseException e) {
                         System.out.println("Erro: " + e.getMessage());
                         throw new RuntimeException("Erro");
@@ -294,7 +341,9 @@ public class App {
                     String phone = scanner.next();
                     phone = phone.replaceAll("[^\\d]", "");
 
-                    userController.createUserManager(name, birthDateFormat, cpf, phone, password, emailManager, RoleType.MANAGER.name());
+                    UserDTO userDTO = new UserDTO(name, birthDateFormat, cpf, phone, emailManager, password, RoleType.MANAGER.name());
+
+                    userController.createUserManager(userDTO);
                     break;
                 case 0:
                     running = false;
