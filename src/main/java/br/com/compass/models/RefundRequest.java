@@ -21,6 +21,5 @@ public class RefundRequest {
     @Column(name = "request_date", insertable = false, updatable = false)
     private Timestamp requestDate;
 
-    @Column(insertable = false)
     private String status;
 } 
