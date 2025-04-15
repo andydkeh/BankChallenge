@@ -8,6 +8,7 @@ import br.com.compass.enums.RoleType;
 import br.com.compass.enums.UserStatus;
 import br.com.compass.models.Account;
 import br.com.compass.models.Users;
+import br.com.compass.utils.UserValidation;
 import org.mindrot.jbcrypt.BCrypt;
 import br.com.compass.config.ConfigReader;
 import java.sql.Date;
@@ -39,6 +40,12 @@ public class UserService {
     }
 
     public Users createUser(UserDTO userDTO) {
+        UserValidation.validateName(userDTO.name());
+        UserValidation.validateCPF(userDTO.cpf());
+        UserValidation.validateBirthDate(userDTO.birthDate().toLocalDate());
+        UserValidation.validatePhone(userDTO.phone());
+        UserValidation.validateEmail(userDTO.email());
+
         if (userDAO.findByEmail(userDTO.email()) == null) {
             Users user = new Users(userDTO.name(), userDTO.birthDate(), userDTO.cpf(), userDTO.phone(), userDTO.passwordHash(), userDTO.email(), userDTO.role());
             userDAO.save(user);

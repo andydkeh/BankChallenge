@@ -7,7 +7,6 @@ import br.com.compass.dto.UserDTO;
 import br.com.compass.enums.AccountType;
 import br.com.compass.enums.RoleType;
 import br.com.compass.models.Account;
-import br.com.compass.models.Transaction;
 import br.com.compass.models.Users;
 
 import java.text.ParseException;

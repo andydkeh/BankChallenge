@@ -8,7 +8,6 @@ import br.com.compass.enums.TransactionsType;
 import br.com.compass.models.*;
 import br.com.compass.dao.TransactionDAO;
 import br.com.compass.dao.TransfersDAO;
-import br.com.compass.dao.RefundDAO;
 
 import java.util.*;
 import java.util.stream.Collectors;
