@@ -30,7 +30,7 @@ Banking system with essential features: account opening, login, balance check, d
 
 ## Technologies
 
-- Java
+- Java 21
 - PostgreSQL
 - JPA/Hibernate
 - Maven
