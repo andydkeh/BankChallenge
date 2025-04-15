@@ -1,4 +1,46 @@
-# Banking System
+# BankChallenge
+
+Banking system with essential features: account opening, login, balance check, deposits, transfers, transaction reversals, statement viewing and report export.
+
+## Features
+
+- Account Management
+  - Open new accounts
+  - Close accounts
+  - View account details
+  - Check balance
+
+- User Management
+  - User registration
+  - Login system
+  - Password recovery
+
+- Transactions
+  - Deposits
+  - Withdrawals
+  - Transfers between accounts
+  - Transaction history
+  - Statement generation
+
+- Security
+  - Password encryption
+  - Session management
+  - Access control
+  - Transaction validation
+
+## Technologies
+
+- Java
+- PostgreSQL
+- JPA/Hibernate
+- Maven
+
+## Compilation
+
+To run the project, it will be necessary to compile:
+```bash
+  mvn clean install
+```
 
 ## Initial Setup
 
@@ -22,7 +64,4 @@ Before running the system, you need to configure the configuration files:
 2. Run the `App.java` class
 3. The system will automatically create the initial administrator if it doesn't exist
 
-### To run the project, it will be necessary to compile
-`mvn clean install`
-
-!!!!!!!!!!!!!!!!! Never share the configuration files with your real credentials !!!!!!!!!!!!!!!!!
+> ⚠️ **SECURITY ALERT**: Never share the configuration files with your real credentials. These files contain sensitive information and should be kept private.
