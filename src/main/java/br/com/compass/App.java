@@ -69,7 +69,6 @@ public class App {
                             bankMenuCommonUser(scanner, idAccount, accountController, transactionController);
                             break;
                         } else {
-                            //manager e adm
                             bankMenuManager(scanner, idUser, userController, emailLogin, transactionController);
                             break;
                         }
@@ -167,9 +166,7 @@ public class App {
                             break;
                         case 0:
                             break;
-
                     }
-
                     break;
                 case 0:
                     running = false;

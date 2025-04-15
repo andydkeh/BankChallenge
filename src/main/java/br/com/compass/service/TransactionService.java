@@ -73,7 +73,7 @@ public class TransactionService {
                 System.out.println("Refund accepted.");
             }
         }else if (Objects.equals(transaction.getTransactionType(), TransactionsType.TRANSFERS.name())){
-            Long idTransfersTransaction = Long.valueOf(transaction.getTransfersId());
+            Long idTransfersTransaction = transaction.getTransfersId();
             Transfers transfer = transfersDAO.findByTransfersID(idTransfersTransaction);
 
             Account accountDestination = accountDAO.findById(transfer.getDestinationAccountId());

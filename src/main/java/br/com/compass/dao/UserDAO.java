@@ -50,15 +50,6 @@ public class UserDAO extends BaseDAO<Users> {
         }
     }
 
-    public List<Users> findByStatus(String status) {
-        TypedQuery<Users> query = em.createQuery(
-                "SELECT u FROM Users u WHERE u.status = :status",
-                Users.class
-        );
-        query.setParameter("status", status);
-        return query.getResultList();
-    }
-
     public List<Users> findAllUsersBlock() {
         TypedQuery<Users> query = em.createQuery(
                 "SELECT u FROM Users u WHERE u.status = :userBlockValue",

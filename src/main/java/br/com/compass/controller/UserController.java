@@ -4,9 +4,6 @@ import br.com.compass.dto.UserDTO;
 import br.com.compass.models.Users;
 import br.com.compass.service.UserService;
 
-import java.util.Date;
-import java.util.List;
-
 public class UserController {
     private final UserService userService;
 
@@ -31,13 +28,12 @@ public class UserController {
         }
     }
 
-    public boolean showUsersBlock(){
+    public void showUsersBlock(){
         try{
-            return userService.showUsersBlock();
+            userService.showUsersBlock();
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
         }
-        return false;
     }
 
     public void unlockUser(Long userId) {

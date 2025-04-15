@@ -26,7 +26,14 @@ public class UserService {
 
     public void createAdministrator(){
         if (UserDAO.findAdministrator() == null){
-            UserDTO userDTO = new UserDTO(ConfigReader.getAdminName(), new Date(0,0,0), "00000000000", null, ConfigReader.getAdminEmail(), ConfigReader.getAdminPassword(), RoleType.ADMINISTRATOR.name());
+            UserDTO userDTO = new UserDTO(ConfigReader.getAdminName(),
+                    new Date(0,0,0),
+                    ConfigReader.getAdminCpf(),
+                    null,
+                    ConfigReader.getAdminEmail(),
+                    ConfigReader.getAdminPassword(),
+                    RoleType.ADMINISTRATOR.name());
+
             createUser(userDTO);
         }
     }
@@ -92,8 +99,7 @@ public class UserService {
         }
     }
 
-    public boolean showUsersBlock(){
-
+    public void showUsersBlock(){
         var usersBlock = userDAO.findAllUsersBlock();
 
         if (usersBlock.isEmpty()){
@@ -104,7 +110,6 @@ public class UserService {
             System.out.println("======= User list =========");
             System.out.println("|ID: " + user.getId() + " |EMAIL:"+user.getEmail());
         }
-        return true;
     }
 
     public void unlockUser(Long userId){

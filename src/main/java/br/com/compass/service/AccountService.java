@@ -4,7 +4,6 @@ import br.com.compass.dao.AccountDAO;
 import br.com.compass.dto.UserDTO;
 import br.com.compass.enums.AccountStatus;
 import br.com.compass.enums.AccountType;
-import br.com.compass.enums.RefundStatus;
 import br.com.compass.enums.TransactionsType;
 import br.com.compass.models.*;
 import br.com.compass.dao.TransactionDAO;
@@ -19,14 +18,12 @@ public class AccountService {
     private final UserService userService;
     private final TransactionDAO transactionDAO;
     private final TransfersDAO transfersDAO;
-    private final RefundDAO refundDAO;
 
     public AccountService() {
         this.accountDAO = new AccountDAO();
         this.userService = new UserService();
         this.transactionDAO = new TransactionDAO();
         this.transfersDAO = new TransfersDAO();
-        this.refundDAO = new RefundDAO();
     }
 
     public void createAccount(UserDTO userDTO, String accountType, boolean userAlreadyExists) {
@@ -171,7 +168,7 @@ public class AccountService {
         List<Transaction> transactions = transactionDAO.findByAllTransactionIdChargeback(idUser);
 
         if(transactions == null){
-            System.out.println("No transactions chargeback for user: "+idUser);
+            throw new RuntimeException("No transactions chargeback for user.");
         }
 
         for (Transaction transaction : transactions) {

@@ -13,7 +13,7 @@ public class ConfigReader {
         try {
             properties.load(new FileInputStream(CONFIG_FILE));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
