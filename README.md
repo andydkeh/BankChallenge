@@ -4,29 +4,18 @@ Banking system with essential features: account opening, login, balance check, d
 
 ## Features
 
-- Account Management
-  - Open new accounts
-  - Close accounts
-  - View account details
-  - Check balance
-
-- User Management
-  - User registration
-  - Login system
-  - Password recovery
-
-- Transactions
-  - Deposits
-  - Withdrawals
-  - Transfers between accounts
-  - Transaction history
-  - Statement generation
-
-- Security
-  - Password encryption
-  - Session management
-  - Access control
-  - Transaction validation
+- Login system
+- Open new accounts
+- Check balance
+- Password recovery
+- Deposits
+- Withdrawals
+- Transfers between accounts
+- Transaction history
+- Statement generation
+- Password encryption
+- Access control
+- Transaction validation
 
 ## Technologies
 
