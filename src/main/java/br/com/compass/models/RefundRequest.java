@@ -18,7 +18,7 @@ public class RefundRequest {
     @Column(name = "transaction_id")
     private Long transactionId;
     
-    @Column(name = "request_date", insertable = false)
+    @Column(name = "request_date", insertable = false, updatable = false)
     private Timestamp requestDate;
 
     @Column(insertable = false)
