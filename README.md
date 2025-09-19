@@ -52,5 +52,3 @@ Before running the system, you need to configure the configuration files:
 1. Set up the database according to the settings in `persistence.xml`
 2. Run the `App.java` class
 3. The system will automatically create the initial administrator if it doesn't exist
-
-> ⚠️ **SECURITY ALERT**: Never share the configuration files with your real credentials. These files contain sensitive information and should be kept private.

@@ -1,0 +1,144 @@
+package br.com.andydkeh.service;
+
+import br.com.andydkeh.dao.AccountDAO;
+import br.com.andydkeh.dao.UserDAO;
+import br.com.andydkeh.dto.UserDTO;
+import br.com.andydkeh.enums.LoginResponse;
+import br.com.andydkeh.enums.RoleType;
+import br.com.andydkeh.enums.UserStatus;
+import br.com.andydkeh.models.Account;
+import br.com.andydkeh.models.Users;
+import br.com.andydkeh.utils.UserValidation;
+import org.mindrot.jbcrypt.BCrypt;
+import br.com.andydkeh.config.ConfigReader;
+import java.sql.Date;
+
+import java.util.List;
+import java.util.Objects;
+
+public class UserService {
+
+    private final UserDAO userDAO;
+    private final AccountDAO accountDAO;
+
+    public UserService() {
+        this.userDAO = new UserDAO();
+        this.accountDAO = new AccountDAO();
+    }
+
+    public void createAdministrator(){
+        if (UserDAO.findAdministrator() == null){
+            UserDTO userDTO = new UserDTO(ConfigReader.getAdminName(),
+                    new Date(01,01,1990),
+                    ConfigReader.getAdminCpf(),
+                    "(99)999999999",
+                    ConfigReader.getAdminEmail(),
+                    ConfigReader.getAdminPassword(),
+                    RoleType.ADMINISTRATOR.name());
+
+            createUser(userDTO);
+        }
+    }
+
+    public Users createUser(UserDTO userDTO) {
+        UserValidation.validateName(userDTO.name());
+        UserValidation.validateCPF(userDTO.cpf());
+        UserValidation.validateBirthDate(userDTO.birthDate().toLocalDate());
+        UserValidation.validatePhone(userDTO.phone());
+        UserValidation.validateEmail(userDTO.email());
+
+        if (userDAO.findByEmail(userDTO.email()) == null) {
+            Users user = new Users(userDTO.name(), userDTO.birthDate(), userDTO.cpf(), userDTO.phone(), userDTO.passwordHash(), userDTO.email(), userDTO.role());
+            userDAO.save(user);
+
+            return user;
+        } else{
+            return null;
+        }
+    }
+
+    public Long login (String email, String password) {
+        Users user = userDAO.findByEmail(email);
+
+        if (user == null){
+             System.out.println(LoginResponse.USER_NOT_FOUND.getMessage());
+             throw new RuntimeException("User not found!");
+        }
+
+        if (Objects.equals(user.getStatus(), UserStatus.BLOCKED.name())) {
+            System.out.println(LoginResponse.USER_BLOCKED.getMessage());
+            throw new RuntimeException("User is blocked!");
+        } else if (!BCrypt.checkpw(password, user.getPasswordHash())) {
+            user.setPasswordAttemptCounter(user.getPasswordAttemptCounter() + 1);
+            if (user.getPasswordAttemptCounter() >= 3 && !Objects.equals(user.getRole(), RoleType.ADMINISTRATOR.name()) && !Objects.equals(user.getRole(), RoleType.MANAGER.name())) {
+                user.setStatus(UserStatus.BLOCKED.name());
+                userDAO.update(user);
+                System.out.println(LoginResponse.USER_BLOCKED.getMessage());
+                throw new RuntimeException("User blocked!");
+            }else{
+                System.out.println(LoginResponse.WRONG_PASSWORD.getMessage());
+                throw new RuntimeException("Wrong password!");
+            }
+        }
+
+        System.out.println(LoginResponse.SUCCESS.getMessage());
+
+        return findAccountsByEmail(email);
+    }
+
+    public Long findAccountsByEmail(String email) {
+        Users userAccounts = userDAO.findByEmail(email);
+        return userAccounts.getId();
+    }
+
+    public String validateRoleByID(String email){
+        Users user = userDAO.findByEmail(email);
+        return user.getRole();
+    }
+
+    public boolean validateAccountType(String email, String accountType) {
+        Long idAccount = userDAO.findByEmail(email).getId();
+        List<Account> accountTypeValue = accountDAO.findByUserIDAllAccounts(idAccount);
+        var control = false;
+
+        if (accountTypeValue != null){
+            for (Account accountTypeUserAccount : accountTypeValue){
+               if (accountTypeUserAccount.getAccountType().equals(accountType)){
+                   control = true;
+                   break;
+               };
+            }
+        }
+        return control;
+    }
+
+    public void showUsersBlock(){
+        var usersBlock = userDAO.findAllUsersBlock();
+
+        if (usersBlock.isEmpty()){
+            throw new RuntimeException("No users blocked at this time.");
+        }
+
+        for (Users user : usersBlock){
+            System.out.println("======= User list =========");
+            System.out.println("|ID: " + user.getId() + " |EMAIL:"+user.getEmail());
+        }
+    }
+
+    public void unlockUser(Long userId){
+        Users user = userDAO.findById(userId);
+
+        if (user != null){
+            user.setStatus(UserStatus.ACTIVE.name());
+            userDAO.save(user);
+
+            System.out.println("User unlocked!");
+        }else{
+            throw new RuntimeException("User not found!");
+        }
+    }
+
+    public Users takeUserInformationByEmail(String email){
+       return userDAO.findByEmail(email);
+    }
+}
